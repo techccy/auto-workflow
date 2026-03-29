@@ -105,6 +105,71 @@ A workflow is defined in JSON format with the following structure:
 }
 ```
 
+For example, to finish the work below:
+Step 1: Create a new folder named "test" in /Users/ccy/Downloads.
+Step 2: Crawl https://cloud.techccy.dpdns.org and write the content to /Users/ccy/Downloads/test/in.html.
+Step 3: Take a screenshot using ADB and save the photo to /Users/ccy/Downloads/test/in.html.
+
+```
+{
+  "name": "CCY Auto Material Collection",     // Workflow name displayed during execution
+  "description": "Create folder, sync web content and mobile screenshot", // Detailed functional description
+  "version": "1.0.0",                        // Version number for script iteration management
+  "variables": [                              // Global variable definitions to avoid hardcoding paths
+    {
+      "name": "target_dir",                   // Variable name: target directory
+      "value": "/Users/ccy/Downloads/test",  // Variable value: the 'test' folder in your Downloads
+      "type": "string"                        // Data type is string
+    }
+  ],
+  "steps": [                                  // List of core steps executed in sequence
+    {
+      "id": "step1_mkdir",                    // Unique ID for logging and tracking
+      "name": "Create Test Folder",           // Human-readable step name
+      "type": "file",                         // Specifies the 'File System' module
+      "parameters": {                         // Parameters passed to pkg/operations/file.go
+        "action": "mkdir",                    // Action: Create directory
+        "path": "${target_dir}"               // Uses the variable; auto-replaced at runtime
+      }
+    },
+    {
+      "id": "step2_web_get",                  // Step ID
+      "name": "Fetch Web Content",            // Step name
+      "type": "web",                          // Specifies the 'Network Request' module
+      "parameters": {                         // Parameters passed to pkg/operations/web.go
+        "action": "get",                      // Action: Execute HTTP GET request
+        "url": "https://cloud.techccy.dpdns.org" // URL to fetch
+      },
+      "retry": {                              // Fault tolerance for network instability
+        "max_retries": 2,                     // Automatically retry up to 2 times on failure
+        "delay": 5                            // Wait 5 seconds between retries
+      }
+    },
+    {
+      "id": "step3_save_html",                // Step ID
+      "name": "Write Web Content to File",    // Step name
+      "type": "file",                         // Calls the file module again
+      "parameters": {
+        "action": "write",                    // Action: Write to file
+        "path": "${target_dir}/in.html",      // Full path (Variable + Filename)
+        "content": "Captured Content"         // Data to be written
+      }
+    },
+    {
+      "id": "step4_adb_screenshot",           // Step ID
+      "name": "ADB Screenshot Sync",          // Step name
+      "type": "adb",                          // Specifies the 'ADB Mobile' module
+      "parameters": {                         // Parameters passed to pkg/operations/adb.go
+        "action": "screencap",                // Action: Mobile screen capture
+        "path": "${target_dir}/screenshot.png" // Path to save the image on the PC
+      }
+    }
+  ],
+  "on_error": {                               // Global error handling strategy
+    "action": "stop"                          // Stop the workflow immediately if any step fails
+  }
+}
+```
 ## Operation Types
 
 ### ADB Operations
