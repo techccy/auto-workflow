@@ -1,0 +1,5 @@
+"""
+Auto Workflow - A flexible automation workflow system.
+"""
+__version__ = "1.0.0"
+__author__ = "Auto Workflow Team"

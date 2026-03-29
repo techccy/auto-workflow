@@ -43,4 +43,3 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
-*/__init__.py*
