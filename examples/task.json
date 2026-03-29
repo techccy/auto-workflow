@@ -1,0 +1,58 @@
+{
+  "name": "CCY 自动素材收集流",
+  "description": "新建文件夹并同步网页内容与手机截屏",
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "target_dir",
+      "value": "/Users/ccy/Downloads/test",
+      "type": "string"
+    }
+  ],
+  "steps": [
+    {
+      "id": "step1_mkdir",
+      "name": "新建测试文件夹",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "mkdir",
+        "path": "/Users/ccy/Downloads/test" 
+      }
+    },
+    {
+      "id": "step2_web_get",
+      "name": "抓取网页内容",
+      "type": "web",
+      "enabled": true,
+      "parameters": {
+        "action": "get",
+        "url": "https://cloud.techccy.dpdns.org"
+      }
+    },
+    {
+      "id": "step3_save_html",
+      "name": "将网页内容写入文件",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "write",
+        "path": "/Users/ccy/Downloads/test/in.html",
+        "content": "Captured from Go Workflow"
+      }
+    },
+    {
+      "id": "step4_adb_screenshot",
+      "name": "ADB 截屏同步",
+      "type": "adb",
+      "enabled": true,
+      "parameters": {
+        "action": "screencap",
+        "output_path": "/Users/ccy/Downloads/test/screenshot.png" 
+      }
+    }
+  ],
+  "on_error": {
+    "action": "stop"
+  }
+}
