@@ -1,0 +1,85 @@
+{
+  "name": "Transitivity Example - Step Result References",
+  "version": "1.0.0",
+  "description": "Demonstrates how to use results from previous steps as variables in subsequent steps",
+  "variables": [
+    {
+      "name": "output_dir",
+      "value": "./test_output/transitivity",
+      "type": "string"
+    }
+  ],
+  "steps": [
+    {
+      "id": "step1_mkdir",
+      "name": "Create Output Directory",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "mkdir",
+        "path": "${output_dir}"
+      }
+    },
+    {
+      "id": "step2_fetch",
+      "name": "Fetch Web Page",
+      "type": "web",
+      "enabled": true,
+      "parameters": {
+        "action": "get",
+        "url": "https://cloud.techccy.dpdns.org"
+      }
+    },
+    {
+      "id": "step3_save_body",
+      "name": "Save Response Body",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "write",
+        "path": "${output_dir}/response_body.html",
+        "content": "${step2_fetch.body}"
+      }
+    },
+    {
+      "id": "step4_save_status",
+      "name": "Save Status Information",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "write",
+        "path": "${output_dir}/status_info.txt",
+        "content": "Status Code: ${step2_fetch.status_code}\nSuccess: ${step2_fetch.success}\nDuration: ${step2_fetch.duration}ms"
+      }
+    },
+    {
+      "id": "step5_save_headers",
+      "name": "Save Response Headers",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "write",
+        "path": "${output_dir}/headers.json",
+        "content": "${step2_fetch.headers}"
+      }
+    },
+    {
+      "id": "step6_conditional",
+      "name": "Conditional Step Based on Status",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "write",
+        "path": "${output_dir}/result.txt",
+        "content": "Request was successful: ${step2_fetch.success}"
+      },
+      "conditions": [
+        {
+          "variable": "step2_fetch.success",
+          "operator": "equals",
+          "value": "True"
+        }
+      ]
+    }
+  ]
+}

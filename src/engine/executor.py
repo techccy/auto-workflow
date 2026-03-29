@@ -196,17 +196,18 @@ class Executor:
 
         def resolve_value(value: Any) -> Any:
             if isinstance(value, str):
-                # Check for variable reference like ${variable_name}
+                # Check for variable reference like ${variable_name} or ${step_id.field_name}
                 result = value
                 while True:
                     match = re.search(r'\$\{(.+?)\}', result)
                     if not match:
                         break
 
-                    var_name = match.group(1)
-                    if var_name in exec_ctx.variables:
-                        var_value = str(exec_ctx.variables[var_name])
-                        result = result[:match.start()] + var_value + result[match.end():]
+                    var_ref = match.group(1)
+                    var_value = self._get_variable_value(var_ref, exec_ctx)
+                    
+                    if var_value is not None:
+                        result = result[:match.start()] + str(var_value) + result[match.end():]
                     else:
                         # Keep the reference if variable not found
                         result = result[:match.end()] + result[match.end():]
@@ -219,6 +220,30 @@ class Executor:
                 return value
 
         return {k: resolve_value(v) for k, v in params.items()}
+
+    def _get_variable_value(self, var_ref: str, exec_ctx: ExecutionContext) -> Any:
+        """Get variable value from reference, supporting both workflow variables and step results."""
+        # Check if it's a step result reference (e.g., step_id or step_id.field_name)
+        if '.' in var_ref:
+            parts = var_ref.split('.', 1)
+            step_id = parts[0]
+            field_name = parts[1]
+            
+            # Try to get from step results
+            if step_id in exec_ctx.results:
+                step_result = exec_ctx.results[step_id]
+                if isinstance(step_result, dict) and field_name in step_result:
+                    return step_result[field_name]
+        else:
+            # Try to get from step results (entire result object)
+            if var_ref in exec_ctx.results:
+                return exec_ctx.results[var_ref]
+            
+            # Try to get from workflow variables
+            if var_ref in exec_ctx.variables:
+                return exec_ctx.variables[var_ref]
+        
+        return None
 
     def _evaluate_conditions(self, conditions: List[Any], exec_ctx: ExecutionContext) -> bool:
         """Evaluate step conditions."""
@@ -236,14 +261,21 @@ class Executor:
         if not condition:
             return True
 
-        variable = condition.get("variable")
-        operator = condition.get("operator")
-        value = condition.get("value")
+        # Handle both dict and dataclass objects
+        if hasattr(condition, 'variable'):
+            variable = condition.variable
+            operator = condition.operator
+            value = condition.value
+        else:
+            variable = condition.get("variable")
+            operator = condition.get("operator")
+            value = condition.get("value")
 
-        if variable not in exec_ctx.variables:
+        # Use _get_variable_value to support step result references
+        var_value = self._get_variable_value(variable, exec_ctx)
+        
+        if var_value is None:
             return False
-
-        var_value = exec_ctx.variables[variable]
 
         if operator == "equals":
             return str(var_value) == str(value)

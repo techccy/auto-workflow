@@ -37,17 +37,28 @@
       "parameters": {
         "action": "write",
         "path": "${target_dir}/in.html",
-        "content": "网页内容占位符" 
+        "content": "${step2_fetch.body}"
       }
     },
     {
       "id": "step4_screenshot",
       "name": "手机截屏",
       "type": "adb",
-      "enabled": true,
+      "enabled": false,
       "parameters": {
         "action": "screencap",
-        "path": "${target_dir}/screenshot.png" 
+        "output_path": "${target_dir}/screenshot.png"
+      }
+    },
+    {
+      "id": "step5_log",
+      "name": "记录状态码",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "write",
+        "path": "${target_dir}/status.txt",
+        "content": "HTTP Status Code: ${step2_fetch.status_code}\nSuccess: ${step2_fetch.success}\nDuration: ${step2_fetch.duration}ms"
       }
     }
   ]
