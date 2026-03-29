@@ -59,54 +59,74 @@ python main.py -version
 ## Workflow Structure
 
 A workflow is defined in JSON format with the following structure:
+Step 1: Create a new folder named "test——output"
+Step 2: Crawl https://cloud.techccy.dpdns.org and write the content to ./test_output/in.html.
 
 ```json
 {
-  "name": "Workflow Name",
-  "description": "Workflow description",
+  "name": "CCY",
   "version": "1.0.0",
   "variables": [
     {
-      "name": "variable_name",
-      "value": "variable_value",
+      "name": "target_dir",
+      "value": "./test_output",
       "type": "string"
     }
   ],
   "steps": [
     {
-      "id": "step_id",
-      "name": "Step Name",
-      "type": "operation_type",
+      "id": "step1_mkdir",
+      "name": "创建文件夹",
+      "type": "file",
       "enabled": true,
-      "parallel": false,
-      "retry": {
-        "max_retries": 3,
-        "delay": 1,
-        "backoff": true
-      },
-      "timeout": 30,
       "parameters": {
-        "action": "specific_action",
-        "param1": "value1"
-      },
-      "conditions": [
-        {
-          "variable": "var_name",
-          "operator": "equals",
-          "value": "expected_value"
-        }
-      ],
-      "loop": {
-        "type": "count",
-        "count": 5,
-        "variable": "iteration"
+        "action": "mkdir",
+        "path": "${target_dir}" 
+      }
+    },
+    {
+      "id": "step2_fetch",
+      "name": "抓取网页",
+      "type": "web",
+      "enabled": true,
+      "parameters": {
+        "action": "get",
+        "url": "https://cloud.techccy.dpdns.org"
+      }
+    },
+    {
+      "id": "step3_save",
+      "name": "保存网页",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "write",
+        "path": "${target_dir}/in.html",
+        "content": "${step2_fetch.body}"
+      }
+    },
+    {
+      "id": "step4_screenshot",
+      "name": "手机截屏",
+      "type": "adb",
+      "enabled": false,
+      "parameters": {
+        "action": "screencap",
+        "output_path": "${target_dir}/screenshot.png"
+      }
+    },
+    {
+      "id": "step5_log",
+      "name": "记录状态码",
+      "type": "file",
+      "enabled": true,
+      "parameters": {
+        "action": "write",
+        "path": "${target_dir}/status.txt",
+        "content": "HTTP Status Code: ${step2_fetch.status_code}\nSuccess: ${step2_fetch.success}\nDuration: ${step2_fetch.duration}ms"
       }
     }
-  ],
-  "on_error": {
-    "action": "stop",
-    "notify": true
-  }
+  ]
 }
 ```
 
