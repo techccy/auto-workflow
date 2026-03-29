@@ -1,6 +1,6 @@
-# Auto Workflow
+# Auto Workflow (Python Version)
 
-A flexible and powerful automation workflow system written in Go that allows you to define and execute complex automation tasks using JSON configuration files.
+A flexible and powerful automation workflow system written in Python that allows you to define and execute complex automation tasks using JSON configuration files.
 
 ## Features
 
@@ -17,13 +17,18 @@ A flexible and powerful automation workflow system written in Go that allows you
 
 ### Prerequisites
 
-- Go 1.21 or higher
+- Python 3.8 or higher
 - ADB (for Android device automation)
 
-### Build
+### Setup
 
 ```bash
-go build -o auto-workflow cmd/main.go
+# Clone the repository
+git clone <repository-url>
+cd auto-workflow
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -32,24 +37,24 @@ go build -o auto-workflow cmd/main.go
 
 ```bash
 # Run a workflow
-./auto-workflow -workflow examples/simple_workflow.json
+python main.py -workflow examples/simple_workflow.json
 
 # Run with specific ADB device
-./auto-workflow -workflow examples/adb_workflow.json -device <device_id>
+python main.py -workflow examples/adb_workflow.json -device <device_id>
 
 # List connected ADB devices
-./auto-workflow -list-devices
+python main.py -list-devices
 
 # Show version
-./auto-workflow -version
+python main.py -version
 ```
 
 ### Command Line Options
 
-- `-workflow <path>`: Path to the workflow JSON file (required)
-- `-device <id>`: ADB device ID to use for ADB operations
-- `-list-devices`: List all connected ADB devices
-- `-version`: Show version information
+- `-w, --workflow <path>`: Path to the workflow JSON file (required)
+- `-d, --device <id>`: ADB device ID to use for ADB operations
+- `-l, --list-devices`: List all connected ADB devices
+- `-v, --version`: Show version information
 
 ## Workflow Structure
 
@@ -105,71 +110,6 @@ A workflow is defined in JSON format with the following structure:
 }
 ```
 
-For example, to finish the work below:
-Step 1: Create a new folder named "test" in /Users/ccy/Downloads.
-Step 2: Crawl https://cloud.techccy.dpdns.org and write the content to /Users/ccy/Downloads/test/in.html.
-Step 3: Take a screenshot using ADB and save the photo to /Users/ccy/Downloads/test/in.html.
-
-```
-{
-  "name": "CCY Auto Material Collection",     // Workflow name displayed during execution
-  "description": "Create folder, sync web content and mobile screenshot", // Detailed functional description
-  "version": "1.0.0",                        // Version number for script iteration management
-  "variables": [                              // Global variable definitions to avoid hardcoding paths
-    {
-      "name": "target_dir",                   // Variable name: target directory
-      "value": "/Users/ccy/Downloads/test",  // Variable value: the 'test' folder in your Downloads
-      "type": "string"                        // Data type is string
-    }
-  ],
-  "steps": [                                  // List of core steps executed in sequence
-    {
-      "id": "step1_mkdir",                    // Unique ID for logging and tracking
-      "name": "Create Test Folder",           // Human-readable step name
-      "type": "file",                         // Specifies the 'File System' module
-      "parameters": {                         // Parameters passed to pkg/operations/file.go
-        "action": "mkdir",                    // Action: Create directory
-        "path": "${target_dir}"               // Uses the variable; auto-replaced at runtime
-      }
-    },
-    {
-      "id": "step2_web_get",                  // Step ID
-      "name": "Fetch Web Content",            // Step name
-      "type": "web",                          // Specifies the 'Network Request' module
-      "parameters": {                         // Parameters passed to pkg/operations/web.go
-        "action": "get",                      // Action: Execute HTTP GET request
-        "url": "https://cloud.techccy.dpdns.org" // URL to fetch
-      },
-      "retry": {                              // Fault tolerance for network instability
-        "max_retries": 2,                     // Automatically retry up to 2 times on failure
-        "delay": 5                            // Wait 5 seconds between retries
-      }
-    },
-    {
-      "id": "step3_save_html",                // Step ID
-      "name": "Write Web Content to File",    // Step name
-      "type": "file",                         // Calls the file module again
-      "parameters": {
-        "action": "write",                    // Action: Write to file
-        "path": "${target_dir}/in.html",      // Full path (Variable + Filename)
-        "content": "Captured Content"         // Data to be written
-      }
-    },
-    {
-      "id": "step4_adb_screenshot",           // Step ID
-      "name": "ADB Screenshot Sync",          // Step name
-      "type": "adb",                          // Specifies the 'ADB Mobile' module
-      "parameters": {                         // Parameters passed to pkg/operations/adb.go
-        "action": "screencap",                // Action: Mobile screen capture
-        "path": "${target_dir}/screenshot.png" // Path to save the image on the PC
-      }
-    }
-  ],
-  "on_error": {                               // Global error handling strategy
-    "action": "stop"                          // Stop the workflow immediately if any step fails
-  }
-}
-```
 ## Operation Types
 
 ### ADB Operations
@@ -408,24 +348,26 @@ Check the `examples/` directory for various workflow examples:
 
 ```
 auto-workflow/
-├── cmd/
-│   └── main.go              # Main CLI application
-├── pkg/
+├── src/
 │   ├── models/
-│   │   └── workflow.go      # Workflow data models
+│   │   ├── __init__.py
+│   │   └── workflow.py          # Workflow data models
 │   ├── operations/
-│   │   ├── handler.go       # Handler interface and registry
-│   │   ├── adb.go           # ADB operations
-│   │   ├── file.go          # File operations
-│   │   ├── system.go        # System operations
-│   │   ├── web.go           # Web operations
-│   │   └── control.go       # Control flow operations
+│   │   ├── __init__.py
+│   │   ├── handler.py           # Handler interface and registry
+│   │   ├── adb.py               # ADB operations
+│   │   ├── file.py              # File operations
+│   │   ├── system.py            # System operations
+│   │   ├── web.py               # Web operations
+│   │   └── control.py           # Control flow operations
 │   └── engine/
-│       ├── parser.go        # Workflow parser
-│       └── executor.go      # Workflow executor
-├── examples/                # Example workflows
-├── go.mod                   # Go module definition
-└── README.md                # This file
+│       ├── __init__.py
+│       ├── parser.py            # Workflow parser
+│       └── executor.py          # Workflow executor
+├── examples/                    # Example workflows
+├── main.py                      # Main CLI application
+├── requirements.txt             # Python dependencies
+└── README_PYTHON.md            # This file
 ```
 
 ## Contributing
