@@ -37,10 +37,10 @@ pip install -r requirements.txt
 
 ```bash
 # Run a workflow
-python main.py -workflow examples/simple_workflow.json
+python main.py -w examples/simple_workflow.json
 
 # Run with specific ADB device
-python main.py -workflow examples/adb_workflow.json -device <device_id>
+python main.py -w examples/adb_workflow.json -device <device_id>
 
 # List connected ADB devices
 python main.py -list-devices
