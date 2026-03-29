@@ -1,0 +1,107 @@
+{
+  "name": "ADB Device Automation",
+  "description": "Automate ADB operations on connected device",
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "app_package",
+      "value": "com.example.app",
+      "type": "string"
+    },
+    {
+      "name": "screenshot_path",
+      "value": "./screenshots",
+      "type": "string"
+    }
+  ],
+  "steps": [
+    {
+      "id": "step1",
+      "name": "Create screenshot directory",
+      "type": "file",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "mkdir",
+        "path": "${screenshot_path}",
+        "recursive": true
+      }
+    },
+    {
+      "id": "step2",
+      "name": "Take screenshot",
+      "type": "adb",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "screencap",
+        "output_path": "${screenshot_path}/screenshot.png"
+      }
+    },
+    {
+      "id": "step3",
+      "name": "Press home button",
+      "type": "adb",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "press",
+        "key": "3"
+      }
+    },
+    {
+      "id": "step4",
+      "name": "Wait for animation",
+      "type": "system",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "sleep",
+        "duration": 2
+      }
+    },
+    {
+      "id": "step5",
+      "name": "Tap on screen",
+      "type": "adb",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "tap",
+        "x": 500,
+        "y": 1000
+      }
+    },
+    {
+      "id": "step6",
+      "name": "Swipe gesture",
+      "type": "adb",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "swipe",
+        "x1": 500,
+        "y1": 1500,
+        "x2": 500,
+        "y2": 500,
+        "duration": 300
+      }
+    },
+    {
+      "id": "step7",
+      "name": "Log completion",
+      "type": "control",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "log",
+        "message": "ADB automation completed successfully!",
+        "level": "info"
+      }
+    }
+  ],
+  "on_error": {
+    "action": "stop",
+    "notify": true
+  }
+}

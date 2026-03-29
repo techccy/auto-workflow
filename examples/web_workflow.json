@@ -1,0 +1,93 @@
+{
+  "name": "Web API Automation",
+  "description": "Automate web API requests",
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "api_base_url",
+      "value": "https://jsonplaceholder.typicode.com",
+      "type": "string"
+    },
+    {
+      "name": "user_id",
+      "value": 1,
+      "type": "number"
+    }
+  ],
+  "steps": [
+    {
+      "id": "step1",
+      "name": "Get user information",
+      "type": "web",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "get",
+        "url": "${api_base_url}/users/${user_id}",
+        "headers": {
+          "Accept": "application/json"
+        }
+      }
+    },
+    {
+      "id": "step2",
+      "name": "Get user posts",
+      "type": "web",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "get",
+        "url": "${api_base_url}/posts?userId=${user_id}",
+        "headers": {
+          "Accept": "application/json"
+        }
+      }
+    },
+    {
+      "id": "step3",
+      "name": "Create new post",
+      "type": "web",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "post",
+        "url": "${api_base_url}/posts",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "title": "Test Post",
+          "body": "This is a test post from Auto Workflow",
+          "userId": "${user_id}"
+        }
+      }
+    },
+    {
+      "id": "step4",
+      "name": "Wait between requests",
+      "type": "system",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "sleep",
+        "duration": 1
+      }
+    },
+    {
+      "id": "step5",
+      "name": "Log completion",
+      "type": "control",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "log",
+        "message": "Web API automation completed!",
+        "level": "info"
+      }
+    }
+  ],
+  "on_error": {
+    "action": "stop",
+    "notify": true
+  }
+}

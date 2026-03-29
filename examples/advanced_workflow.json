@@ -1,0 +1,161 @@
+{
+  "name": "Advanced Workflow with Control Flow",
+  "description": "Demonstrates advanced features: conditions, loops, variables",
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "counter",
+      "value": 0,
+      "type": "number"
+    },
+    {
+      "name": "max_iterations",
+      "value": 5,
+      "type": "number"
+    },
+    {
+      "name": "results",
+      "value": [],
+      "type": "array"
+    }
+  ],
+  "steps": [
+    {
+      "id": "step1",
+      "name": "Initialize counter",
+      "type": "control",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "set_variable",
+        "name": "counter",
+        "value": 0
+      }
+    },
+    {
+      "id": "step2",
+      "name": "Loop iteration",
+      "type": "system",
+      "enabled": true,
+      "parallel": false,
+      "loop": {
+        "type": "count",
+        "count": 5,
+        "variable": "iteration"
+      },
+      "parameters": {
+        "action": "sleep",
+        "duration": 1
+      }
+    },
+    {
+      "id": "step3",
+      "name": "Increment counter",
+      "type": "control",
+      "enabled": true,
+      "parallel": false,
+      "loop": {
+        "type": "count",
+        "count": 5,
+        "variable": "iteration"
+      },
+      "parameters": {
+        "action": "increment",
+        "name": "counter",
+        "amount": 1
+      }
+    },
+    {
+      "id": "step4",
+      "name": "Log iteration",
+      "type": "control",
+      "enabled": true,
+      "parallel": false,
+      "loop": {
+        "type": "count",
+        "count": 5,
+        "variable": "iteration"
+      },
+      "parameters": {
+        "action": "log",
+        "message": "Iteration ${iteration}, Counter: ${counter}",
+        "level": "info"
+      }
+    },
+    {
+      "id": "step5",
+      "name": "Check counter value",
+      "type": "control",
+      "enabled": true,
+      "parallel": false,
+      "conditions": [
+        {
+          "variable": "counter",
+          "operator": "greater",
+          "value": 3
+        }
+      ],
+      "parameters": {
+        "action": "log",
+        "message": "Counter is greater than 3!",
+        "level": "info"
+      }
+    },
+    {
+      "id": "step6",
+      "name": "Create output directory",
+      "type": "file",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "mkdir",
+        "path": "./advanced_output",
+        "recursive": true
+      }
+    },
+    {
+      "id": "step7",
+      "name": "Write results to file",
+      "type": "file",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "write",
+        "path": "./advanced_output/results.txt",
+        "content": "Final counter value: ${counter}"
+      }
+    },
+    {
+      "id": "step8",
+      "name": "Assert counter value",
+      "type": "control",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "assert",
+        "condition": {
+          "operator": "equals",
+          "left": "${counter}",
+          "right": 5
+        },
+        "message": "Counter should be 5 after 5 iterations"
+      }
+    },
+    {
+      "id": "step9",
+      "name": "Log completion",
+      "type": "control",
+      "enabled": true,
+      "parallel": false,
+      "parameters": {
+        "action": "log",
+        "message": "Advanced workflow completed successfully!",
+        "level": "info"
+      }
+    }
+  ],
+  "on_error": {
+    "action": "stop",
+    "notify": true
+  }
+}
